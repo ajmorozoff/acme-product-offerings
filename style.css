@@ -1,3 +1,4 @@
+
 body{
     font-family:sans-serif;
 }
@@ -6,6 +7,18 @@ body{
     justify-content: space-around;
     flex-wrap: wrap;
     
+}
+
+.card-header {
+    color: white;
+}
+
+a {
+    color: white;
+}
+
+li {
+    text-align: left;
 }
 
 .card {
@@ -17,4 +30,14 @@ body{
     text-align: center;
     flex-basis: 40%;
     border-radius: 20px;
+}
+
+@media screen and (max-width: 480px) {
+    .card-body {
+        display: none;
+    }
+
+    .card {
+        flex-basis: 80%;
+    }
 }

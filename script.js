@@ -3,27 +3,26 @@ const container = document.getElementById('container');
 console.log(container);
 
 //FUNCTION DECLARATIONS
-
 window.addEventListener('hashchange', ev => {
-    const id=window.location.hash.slice(1);
-    console.log(id);
-    
+    const id = window.location.hash.slice(1);
 
     Promise.all([fetchCompanies(), fetchProducts(), fetchOfferings()])
     .then(responses => {
         const [companies, products, offerings] = responses;
-        const singleProd= products.filter(prod=>prod.id===id)
 
-        const processed = processProducts(singleProd, offerings, companies);
-        //console.log(processed);
-        return processed;
+        let productList = products;
+
+        if (id.length) {
+            productList = products.filter(prod => prod.id === id);
+        }
+
+        const processedProducts = processProducts(productList, offerings, companies);
+        return processedProducts;
     })
-    .then(processed => {
-        renderPage(processed);
+    .then(data => {
+        renderPage(data);
     })
     .catch(error => console.log(error));
-
-
 
 })
 
@@ -75,16 +74,16 @@ const processProducts = (productList, offeringList, companyList) => {
 
 const renderCard = (product, offers) => {
     const cardDiv = document.createElement('div');
-    cardDiv.className = 'card';
-    
-    let header=document.createElement('h2');
-    header.innerHTML=`<a href=#${product.id}>${product.name.toUpperCase()}</a>`;
-    cardDiv.appendChild(header);
-    
-    let body=document.createElement('div');
+    cardDiv.classList.add('card');
 
-    let bodyHtml = `<p>${product.description}</p><p>\$${product.suggestedPrice}</p>`;
-    bodyHtml += `<ul>`;
+    let header = document.createElement('div');
+    header.classList.add('card-header');
+    header.innerHTML = `<h2><a href=#${product.id}>${product.name.toUpperCase()}</a></h2><p>${product.description}</p><p>\$${product.suggestedPrice}</p>`;
+    cardDiv.appendChild(header);
+
+    let body = document.createElement('div');
+    body.classList.add('card-body');
+    let bodyHtml = `<ul>`;
     offers.forEach(offer => {
         bodyHtml += `<li>Offered by: ${offer.company.name} \$${offer.price}</li>`;
     })
@@ -95,8 +94,7 @@ const renderCard = (product, offers) => {
 }
 
 const renderPage = (processedArr) => {
-    container.innerHTML='';
-    //appends all cards in arr to container
+    container.innerHTML = '';
     processedArr.forEach(prod => {
         const card = renderCard(prod.product, prod.offers);
         container.appendChild(card);
@@ -117,9 +115,8 @@ Promise.all([fetchCompanies(), fetchProducts(), fetchOfferings()])
         return processed;
     })
     .then(processed => {
-        window.location.hash='#'
+        window.location.hash = '#';
         renderPage(processed);
     })
     .catch(error => console.log(error));
-
 
