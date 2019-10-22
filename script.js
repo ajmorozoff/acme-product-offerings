@@ -3,6 +3,30 @@ const container = document.getElementById('container');
 console.log(container);
 
 //FUNCTION DECLARATIONS
+
+window.addEventListener('hashchange', ev => {
+    const id=window.location.hash.slice(1);
+    console.log(id);
+    
+
+    Promise.all([fetchCompanies(), fetchProducts(), fetchOfferings()])
+    .then(responses => {
+        const [companies, products, offerings] = responses;
+        const singleProd= products.filter(prod=>prod.id===id)
+
+        const processed = processProducts(singleProd, offerings, companies);
+        //console.log(processed);
+        return processed;
+    })
+    .then(processed => {
+        renderPage(processed);
+    })
+    .catch(error => console.log(error));
+
+
+
+})
+
 const fetchCompanies = () => new Promise((resolve, reject) => {
     return window.fetch('https://acme-users-api-rev.herokuapp.com/api/companies')
             .then(response => response.json())
@@ -52,17 +76,26 @@ const processProducts = (productList, offeringList, companyList) => {
 const renderCard = (product, offers) => {
     const cardDiv = document.createElement('div');
     cardDiv.className = 'card';
-    let headerHtml = `<h2>${product.name}</h2><p>${product.description}</p><p>\$${product.suggestedPrice}</p>`;
-    headerHtml += `<ul>`;
+    
+    let header=document.createElement('h2');
+    header.innerHTML=`<a href=#${product.id}>${product.name.toUpperCase()}</a>`;
+    cardDiv.appendChild(header);
+    
+    let body=document.createElement('div');
+
+    let bodyHtml = `<p>${product.description}</p><p>\$${product.suggestedPrice}</p>`;
+    bodyHtml += `<ul>`;
     offers.forEach(offer => {
-        headerHtml += `<li>Offered by: ${offer.company.name} \$${offer.price}</li>`;
+        bodyHtml += `<li>Offered by: ${offer.company.name} \$${offer.price}</li>`;
     })
-    headerHtml += `</ul>`;
-    cardDiv.innerHTML = headerHtml;
+    bodyHtml += `</ul>`;
+    body.innerHTML = bodyHtml;
+    cardDiv.appendChild(body)
     return cardDiv;
 }
 
 const renderPage = (processedArr) => {
+    container.innerHTML='';
     //appends all cards in arr to container
     processedArr.forEach(prod => {
         const card = renderCard(prod.product, prod.offers);
@@ -72,6 +105,7 @@ const renderPage = (processedArr) => {
 
 
 //ON PAGE LOAD
+
 Promise.all([fetchCompanies(), fetchProducts(), fetchOfferings()])
     .then(responses => {
         const [companies, products, offerings] = responses;
@@ -83,6 +117,9 @@ Promise.all([fetchCompanies(), fetchProducts(), fetchOfferings()])
         return processed;
     })
     .then(processed => {
+        window.location.hash='#'
         renderPage(processed);
     })
     .catch(error => console.log(error));
+
+
