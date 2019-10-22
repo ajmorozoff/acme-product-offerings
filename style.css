@@ -1,0 +1,15 @@
+#container {
+    display: flex;
+    justify-content: space-around;
+    flex-wrap: wrap;
+}
+
+.card {
+    padding: 1rem;
+    flex: 1;
+    width: 40vw;
+    margin: 1rem;
+    background-color: tomato;
+    color: white;
+    text-align: center;
+}
